@@ -1,0 +1,48 @@
+var POST_URL = "URL IS HERE";
+
+var form = FormApp.getActiveForm();
+var items = form.getItems();
+for (var i in items) { 
+  Logger.log(items[i].getTitle() + ': ' + items[i].getId());
+}
+
+function onSubmit(e) {
+  var response = e.response.getItemResponses();
+  
+  var fields = [
+    {"title": "", "value": e.response.getRespondentEmail()},
+  ];
+  
+  for (var i = 0; i < response.length; i++) {
+    var question = response[i].getItem().getTitle();
+    var answer = response[i].getResponse();
+    
+    fields.push({"title": question, "value": answer});
+  }
+    
+  var summaryAttachment = {
+    "fallback": FormApp.getActiveForm().getTitle(),
+    "pretext": "",
+    "title": "",
+    "title_link": "" + FormApp.getActiveForm().getDestinationId(),
+    "fields": fields,
+    "color": "#003a70"
+  };
+  
+    var responseAttachment = {
+    "fallback": "Check Latest DLVA Flights Here!: https://docs.google.com/spreadsheets/d/e/2PACX-1vRFrXfRDTw7BYBTBK9nVvjPIZxmhWVwfuh9GzrYw2FDaIKWg_wmLsttZ6d5vZGMlOiztYrFvJ-X5VN7/pubhtml?gid=1483852104&single=true",
+    "title": "<https://docs.google.com/spreadsheets/d/e/2PACX-1vRFrXfRDTw7BYBTBK9nVvjPIZxmhWVwfuh9GzrYw2FDaIKWg_wmLsttZ6d5vZGMlOiztYrFvJ-X5VN7/pubhtml?gid=1483852104&single=true|Check Latest DLVA Flights Here!>",
+    "title_link": "" + e.response.getRespondentEmail() + "?Subject=" + encodeURI(FormApp.getActiveForm().getTitle())
+  };
+
+  var options = {
+    "method" : "post",
+    "payload": JSON.stringify({
+      "username": "DLVA PIREP",
+      "icon_emoji": ":deltaarrow:",
+      "attachments": [summaryAttachment, responseAttachment]
+    })
+  };
+
+   UrlFetchApp.fetch(POST_URL, options);
+};
